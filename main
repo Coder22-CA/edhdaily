@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EDH Physician Assignments</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+      font-size: 1.1rem;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 1rem auto;
+      padding: 0.5rem;
+    }
+    .card {
+      border: 2px solid #000;
+      border-radius: 6px;
+      padding: 0.5rem;
+      background: #fff;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      text-align: center;
+      width: 100%;
+    }
+    .date-row {
+      margin: 0.3rem 0 0.7rem;
+    }
+    label {
+      font-weight: bold;
+    }
+    input.date-input {
+      margin-left: 0.5rem;
+      padding: 0.3rem;
+      border: 1px solid #000;
+      border-radius: 4px;
+      font-size: 1.1rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: 2px solid #000;
+      border-radius: 4px;
+      background: #f0f0f0;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .btn:hover {
+      background: #ddd;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+    }
+    th, td {
+      border: 2px solid #000;
+      padding: 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      width: 30%; /* Room assignments larger */
+    }
+    th:nth-child(3), td:nth-child(3) {
+      width: 18%; /* phone number smaller */
+    }
+    select, input.room-input {
+      width: 100%;
+      padding: 0.3rem;
+      border: 1px solid #000;
+      border-radius: 4px;
+      font-size: 1.1rem;
+    }
+    .readonly {
+      padding: 0.3rem;
+      display: inline-block;
+      font-weight: bold;
+    }
+    .multiline {
+      white-space: pre-line;
+    }
+    .room-label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.2rem;
+      font-size: 1rem;
+    }
+    .footer {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.05rem;
+      font-weight: bold;
+    }
+    .footer div {
+      width: 48%;
+    }
+    /* Make phone cell editable appearance clear */
+    td.phone-cell[contenteditable="true"] {
+      background: #fffbe6;
+      border: 2px dashed #000;
+    }
+    @media print {
+      body { font-size: 0.95rem; }
+      .btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="login-screen" class="wrap" style="max-width:400px; margin-top:3rem;">
+    <div class="card">
+      <h2 style="margin-top:0;">Login Required</h2>
+      <label for="password-input">Enter Password:</label>
+      <input type="password" id="password-input" class="date-input" style="width:100%; margin:0.5rem 0;" />
+      <button class="btn" onclick="authenticate()" style="width:100%;">Login</button>
+      <p id="login-error" style="color:red; display:none;">Incorrect password. Try again.</p>
+    </div>
+  </div>
+
+  <div id="schedule-container" class="wrap" style="display:none;">
+    <div class="card">
+      <header>
+        <div style="flex:1"></div>
+        <h1>EDH Physician Assignments</h1>
+        <div style="flex:1; text-align:right"><button class="btn" onclick="window.print()">Print</button></div>
+      </header>
+      <div class="date-row">
+        <label for="date">Date:</label>
+        <input type="text" id="date" class="date-input" placeholder="MM/DD/YYYY" />
+      </div>
+      <table id="schedule">
+        <thead>
+          <tr>
+            <th>Physicians</th>
+            <th>Room Assignments</th>
+            <th>Phone Number</th>
+            <th>Call Phone</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td>
+              <span class="room-label">Board runner</span>
+              <input type="text" class="room-input" value="Room 101">
+            </td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td>(678)-371-9038</td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td>
+              <span class="room-label">OB</span>
+              <input type="text" class="room-input" value="Room 202">
+            </td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td>(404) 938-1964</td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td>
+              <span class="room-label">GI</span>
+              <input type="text" class="room-input" value="Room 303">
+            </td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><input type="text" class="room-input" value="Room 404"></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><input type="text" class="room-input"></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><input type="text" class="room-input"></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><input type="text" class="room-input"></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><input type="text" class="room-input"></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><span class="readonly">Backup Call</span></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td>(678)-371-9038</td>
+          </tr>
+          <tr>
+            <td><select class="physician-select" onchange="updatePhoneSelect(this)"><option value=""> </option><option value="Dr. Smith">Dr. Smith</option><option value="Dr. Johnson">Dr. Johnson</option><option value="Dr. Lee">Dr. Lee</option><option value="Dr. Patel">Dr. Patel</option></select></td>
+            <td><span class="readonly">Call</span></td>
+            <td class="phone-cell" contenteditable="false"></td>
+            <td class="multiline">(678)-371-9038
+(404) 938-1964</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footer">
+        <div>
+          Anesthesiologist Call Phone: (678) 371-9038<br>
+          Anesthesiologist OB Phone: (404) 938-1964
+        </div>
+        <div>
+          Anesthetist DOT Phone: (404) 309-6303<br>
+          Anesthetist OB Phone: (404) 821-3456
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const phoneDirectory = {
+      "Dr. Smith": "555-1234",
+      "Dr. Johnson": "555-5678",
+      "Jason Speigler Lee": "555-9012",
+      "Neel Patel": "989-854-8539"
+    };
+
+    function updatePhoneSelect(selectElem) {
+      const name = selectElem.value;
+      const phoneCell = selectElem.parentElement.parentElement.querySelector('.phone-cell');
+      if (name && phoneDirectory[name]) {
+        phoneCell.textContent = phoneDirectory[name];
+        phoneCell.contentEditable = "false";
+      } else {
+        phoneCell.textContent = "";
+        phoneCell.contentEditable = "true"; // allow manual entry when name is blank or unknown
+      }
+    }
+
+    function authenticate() {
+      const pw = document.getElementById('password-input').value;
+      if (pw === 'admin123') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('schedule-container').style.display = 'block';
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
